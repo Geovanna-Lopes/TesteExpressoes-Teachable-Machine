@@ -25,20 +25,6 @@ o nome da expressão, a porcentagem de confiança e um emoji de representação 
 
 ## Estrutura
 
-/
-├── index.html
-├── README.md
-├── model/
-│   ├── model.json
-│   ├── metadata.json
-│   └── model.weights.bin
-└── img/
-    ├── sorridente.png
-    ├── surpreso.png
-    ├── sonolento.png
-    ├── desanimado.png
-    └── chorando.png
-
 index.html: interface principal e código JavaScript.
 
 img/: imagens de emojis correspondentes às expressões reconhecidas.
