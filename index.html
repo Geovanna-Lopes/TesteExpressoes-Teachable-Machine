@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="author"
+        content="Geovanna Lopes da Silva"
+    >
+
+    <meta
+        name="description"
+        content="Este exercício chama Classificador de Expressões Faciais, foi feito usando Teachable Machine e TensorFlow.js. Baseado no exercício que o professor Augusto Melo sugeriu."
+    >
+
+    <title>Classificador de Expressões Faciais</title>
+
+
+    <!--
+        CSS
+
+        O CSS não é responsável pelo funcionamento
+        da inteligência artificial.
+
+        Ele serve para organizar a aparência da página:
+
+        - fundo rosa;
+        - botões;
+        - câmera;
+        - resultado;
+        - imagem da expressão;
+        - organização dos elementos.
+    -->
+
+    <style>
+
+        body {
+
+            font-family: Arial, sans-serif;
+
+            margin: 0;
+
+            padding: 20px;
+
+            text-align: center;
+
+            background-color: #FCE4EC;
+
+        }
+
+
+        h1 {
+
+            margin-top: 0;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        /*
+            Área dos botões.
+
+            Os botões ficam um abaixo do outro.
+
+            Isso permite que o botão "Iniciar"
+            desapareça depois que a câmera for ligada.
+        */
+        #buttons {
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            gap: 10px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        /*
+            Estilo dos botões.
+        */
+        button {
+
+            width: 100px;
+
+            padding: 10px 15px;
+
+            font-size: 16px;
+
+            cursor: pointer;
+
+            background-color: #D81B60;
+
+            color: white;
+
+            border: none;
+
+            border-radius: 8px;
+
+        }
+
+
+        /*
+            Efeito quando o mouse passa
+            sobre o botão.
+        */
+        button:hover {
+
+            background-color: #AD1457;
+
+        }
+
+
+        /*
+            O botão de pausa começa escondido.
+
+            Ele só aparecerá depois que
+            o usuário clicar em "Iniciar".
+        */
+        #pause-button {
+
+            display: none;
+
+        }
+
+
+        /*
+            Container principal.
+
+            Câmera:
+            lado esquerdo.
+
+            Resultado:
+            lado direito.
+        */
+        #main-container {
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: flex-start;
+
+            gap: 50px;
+
+            max-width: 1100px;
+
+            margin: 0 auto;
+
+        }
+
+
+        /*
+            Área da câmera.
+        */
+        #camera-section {
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+        }
+
+
+        /*
+            Local onde o canvas da câmera
+            será colocado.
+        */
+        #webcam-container {
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+        }
+
+
+        /*
+            Tamanho da câmera na página.
+        */
+        canvas {
+
+            width: 500px !important;
+
+            height: 500px !important;
+
+            max-width: 100%;
+
+            border-radius: 15px;
+
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.2);
+
+        }
+
+
+        /*
+            Área do resultado.
+        */
+        #result-section {
+
+            width: 350px;
+
+            min-height: 500px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: center;
+
+            align-items: center;
+
+            background-color: rgba(255, 255, 255, 0.5);
+
+            border-radius: 15px;
+
+            padding: 20px;
+
+            box-sizing: border-box;
+
+        }
+
+
+        /*
+            Nome da expressão.
+        */
+        #expression-name {
+
+            margin: 0 0 10px 0;
+
+            font-size: 28px;
+
+        }
+
+
+        /*
+            Confiança da classificação.
+        */
+        #result {
+
+            margin: 10px 0 20px 0;
+
+            font-size: 18px;
+
+        }
+
+
+        /*
+            Imagem da expressão.
+        */
+        #expression-img {
+
+            width: 300px;
+
+            height: 300px;
+
+            max-width: 100%;
+
+            object-fit: contain;
+
+            border-radius: 10px;
+
+        }
+
+
+        /*
+            Em telas menores:
+
+            câmera e resultado ficam
+            um embaixo do outro.
+        */
+        @media (max-width: 800px) {
+
+            #main-container {
+
+                flex-direction: column;
+
+                align-items: center;
+
+                gap: 25px;
+
+            }
+
+
+            canvas {
+
+                width: 350px !important;
+
+                height: 350px !important;
+
+            }
+
+
+            #result-section {
+
+                width: 350px;
+
+                min-height: auto;
+
+            }
+
+        }
+
+
+        /*
+            Ajustes para telas muito pequenas.
+        */
+        @media (max-width: 400px) {
+
+            body {
+
+                padding: 10px;
+
+            }
+
+
+            h1 {
+
+                font-size: 24px;
+
+            }
+
+
+            canvas {
+
+                width: 280px !important;
+
+                height: 280px !important;
+
+            }
+
+
+            #result-section {
+
+                width: 280px;
+
+            }
+
+
+            #expression-img {
+
+                width: 230px;
+
+                height: 230px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <h1>
+        Classificador de Expressões Faciais
+    </h1>
+
+
+    <!--
+        BOTÕES
+
+        No início:
+
+        [ Iniciar ]
+
+        Depois de iniciar:
+
+        [ Pausar ]
+
+        Quando estiver pausado:
+
+        [ Continuar ]
+    -->
+    <div id="buttons">
+
+
+        <button
+            id="start-button"
+            type="button"
+            onclick="init()"
+        >
+            Iniciar
+        </button>
+
+
+        <button
+            id="pause-button"
+            type="button"
+            onclick="togglePause()"
+        >
+            Pausar
+        </button>
+
+    </div>
+
+
+    <!--
+        CONTAINER PRINCIPAL
+    -->
+    <div id="main-container">
+
+
+        <!--
+            CÂMERA
+        -->
+        <div id="camera-section">
+
+            <div id="webcam-container"></div>
+
+        </div>
+
+
+        <!--
+            RESULTADO
+        -->
+        <div id="result-section">
+
+
+            <!--
+                Nome da expressão.
+            -->
+            <h2 id="expression-name"></h2>
+
+
+            <!--
+                Confiança.
+            -->
+            <div id="result"></div>
+
+
+            <!--
+                Imagem da expressão.
+            -->
+            <img
+                id="expression-img"
+                src=""
+                alt=""
+                style="display: none;"
+            >
+
+        </div>
+
+    </div>
+
+
+    <!--
+        TensorFlow.js
+    -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"
+    ></script>
+
+
+    <!--
+        Teachable Machine
+    -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"
+    ></script>
+
+
+    <script>
+
+
+        /*
+            CAMINHO DO MODELO.
+        */
+        const URL = "./model/";
+
+
+        /*
+            VARIÁVEIS DO SISTEMA.
+        */
+        let model;
+
+        let webcam;
+
+        let maxPredictions;
+
+
+        /*
+            Indica se o sistema está pausado.
+        */
+        let isPaused = false;
+
+
+        /*
+            Indica se o sistema já foi iniciado.
+        */
+        let isStarted = false;
+
+
+        /*
+            Variáveis para estabilizar
+            o reconhecimento.
+        */
+        let lastPrediction = "";
+
+        let predictionCount = 0;
+
+
+        /*
+            Número de reconhecimentos
+            consecutivos necessários.
+        */
+        const requiredFrames = 5;
+
+
+        /*
+            Imagens correspondentes
+            às expressões.
+        */
+        const expressionImages = {
+
+            "Sorridente":
+                "./img/sorridente.png",
+
+            "Surpreso":
+                "./img/surpreso.png",
+
+            "Sonolento":
+                "./img/sonolento.png",
+
+            "Desanimado":
+                "./img/desanimado.png",
+
+            "Chorando":
+                "./img/chorando.png"
+
+        };
+
+
+        /*
+            INICIAR
+
+            Essa função é executada
+            quando o usuário clica
+            no botão "Iniciar".
+        */
+        async function init() {
+
+
+            /*
+                Impede que o botão Iniciar
+                crie outra câmera.
+            */
+            if (isStarted) {
+
+                return;
+
+            }
+
+
+            try {
+
+
+                /*
+                    Caminhos dos arquivos
+                    do modelo.
+                */
+                const modelURL =
+                    URL + "model.json";
+
+                const metadataURL =
+                    URL + "metadata.json";
+
+
+                /*
+                    Carrega o modelo.
+                */
+                model = await tmImage.load(
+                    modelURL,
+                    metadataURL
+                );
+
+
+                /*
+                    Quantidade de classes.
+                */
+                maxPredictions =
+                    model.getTotalClasses();
+
+
+                /*
+                    Câmera como espelho.
+                */
+                const flip = true;
+
+
+                /*
+                    Cria a câmera.
+                */
+                webcam = new tmImage.Webcam(
+                    500,
+                    500,
+                    flip
+                );
+
+
+                /*
+                    Utiliza a câmera frontal.
+                */
+                await webcam.setup({
+
+                    facingMode: "user"
+
+                });
+
+
+                /*
+                    Liga a câmera.
+                */
+                await webcam.play();
+
+
+                /*
+                    Coloca a câmera na página.
+                */
+                document
+                    .getElementById(
+                        "webcam-container"
+                    )
+                    .appendChild(
+                        webcam.canvas
+                    );
+
+
+                /*
+                    Marca o sistema como iniciado.
+                */
+                isStarted = true;
+
+                isPaused = false;
+
+
+                /*
+                    ESCONDE O BOTÃO INICIAR.
+
+                    Agora ele não ficará mais
+                    ao lado do botão Pausar.
+                */
+                document
+                    .getElementById(
+                        "start-button"
+                    )
+                    .style.display = "none";
+
+
+                /*
+                    MOSTRA O BOTÃO PAUSAR.
+                */
+                document
+                    .getElementById(
+                        "pause-button"
+                    )
+                    .style.display = "block";
+
+
+                /*
+                    Começa o reconhecimento.
+                */
+                window.requestAnimationFrame(loop);
+
+
+            } catch (error) {
+
+
+                /*
+                    Caso aconteça algum erro
+                    ao abrir a câmera ou modelo.
+                */
+                console.error(error);
+
+                alert(
+                    "Não foi possível iniciar a câmera ou o modelo."
+                );
+
+            }
+
+        }
+
+
+        /*
+            LOOP
+
+            Mantém o reconhecimento funcionando.
+        */
+        async function loop() {
+
+
+            /*
+                Se estiver pausado,
+                não continua o reconhecimento.
+            */
+            if (isPaused) {
+
+                return;
+
+            }
+
+
+            /*
+                Atualiza a câmera.
+            */
+            webcam.update();
+
+
+            /*
+                Faz a classificação.
+            */
+            await predict();
+
+
+            /*
+                Continua o loop.
+            */
+            window.requestAnimationFrame(loop);
+
+        }
+
+
+        /*
+            PAUSAR / CONTINUAR
+        */
+        async function togglePause() {
+
+
+            /*
+                Segurança.
+
+                Se não existe câmera,
+                não fazemos nada.
+            */
+            if (!webcam) {
+
+                return;
+
+            }
+
+
+            /*
+                ==========================
+                PAUSAR
+                ==========================
+            */
+            if (!isPaused) {
+
+
+                isPaused = true;
+
+
+                /*
+                    IMPORTANTE:
+
+                    webcam.pause() apenas pausa
+                    o vídeo.
+
+                    Por isso usamos STOP.
+
+                    stop() encerra o stream da
+                    câmera e libera o acesso
+                    à câmera.
+                */
+                webcam.pause();
+
+
+                /*
+                    Muda o texto do botão.
+                */
+                document
+                    .getElementById(
+                        "pause-button"
+                    )
+                    .innerText = "Continuar";
+
+
+            }
+
+
+            /*
+                ==========================
+                CONTINUAR
+                ==========================
+            */
+            else {
+
+
+                /*
+            Retira o estado de pausa.
+        */
+        isPaused = false;
+
+
+        /*
+            Continua a câmera que já estava aberta.
+        */
+        webcam.play();
+
+
+        /*
+            Altera o texto do botão novamente.
+        */
+        document.getElementById(
+            "pause-button"
+        ).innerText = "Pausar";
+
+
+        /*
+            Reinicia o reconhecimento.
+        */
+        window.requestAnimationFrame(loop);
+
+            }
+
+        }
+
+
+        /*
+            PREDICT
+
+            Analisa a imagem atual da câmera.
+        */
+        async function predict() {
+
+
+            /*
+                Envia a imagem para
+                o modelo de inteligência artificial.
+            */
+            const prediction =
+                await model.predict(
+                    webcam.canvas
+                );
+
+
+            /*
+                Variáveis para encontrar
+                a maior probabilidade.
+            */
+            let maxProb = 0;
+
+            let maxLabel = "";
+
+
+            /*
+                Percorre todas as classes.
+            */
+            for (
+                let i = 0;
+                i < maxPredictions;
+                i++
+            ) {
+
+
+                /*
+                    Encontra a classe
+                    com maior probabilidade.
+                */
+                if (
+                    prediction[i].probability >
+                    maxProb
+                ) {
+
+                    maxProb =
+                        prediction[i].probability;
+
+                    maxLabel =
+                        prediction[i].className;
+
+                }
+
+            }
+
+
+            /*
+                Recupera os elementos
+                da página.
+            */
+            const resultDiv =
+                document.getElementById(
+                    "result"
+                );
+
+            const expressionName =
+                document.getElementById(
+                    "expression-name"
+                );
+
+            const expressionImg =
+                document.getElementById(
+                    "expression-img"
+                );
+
+
+            /*
+                Confiança mínima:
+
+                60%
+            */
+            if (
+                maxProb > 0.6 &&
+                expressionImages[maxLabel]
+            ) {
+
+
+                /*
+                    Verifica se a expressão
+                    continua sendo a mesma.
+                */
+                if (
+                    maxLabel === lastPrediction
+                ) {
+
+                    predictionCount++;
+
+                } else {
+
+                    lastPrediction =
+                        maxLabel;
+
+                    predictionCount = 1;
+
+                }
+
+
+                /*
+                    Só confirma a expressão
+                    depois de vários frames.
+                */
+                if (
+                    predictionCount >=
+                    requiredFrames
+                ) {
+
+
+                    /*
+                        Nome da expressão.
+                    */
+                    expressionName.innerHTML =
+                        maxLabel;
+
+
+                    /*
+                        Confiança.
+                    */
+                    resultDiv.innerHTML =
+                        `Confiança: <b>${(
+                            maxProb * 100
+                        ).toFixed(1)}%</b>`;
+
+
+                    /*
+                        Imagem correspondente.
+                    */
+                    expressionImg.src =
+                        expressionImages[
+                            maxLabel
+                        ];
+
+
+                    /*
+                        Texto alternativo.
+                    */
+                    expressionImg.alt =
+                        `Expressão ${maxLabel}`;
+
+
+                    /*
+                        Mostra a imagem.
+                    */
+                    expressionImg.style.display =
+                        "block";
+
+                }
+
+            } else {
+
+
+                /*
+                    Não apagamos o resultado
+                    anterior imediatamente.
+
+                    Isso evita que a interface
+                    fique piscando.
+                */
+                predictionCount = 0;
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
