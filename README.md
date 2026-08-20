@@ -59,14 +59,14 @@ README.md: documentação do projeto.
 `http://localhost:5500/index.html`
 
 **2.Na Web**
-Acesse o projeto diretamnet pelo navegador no link:
+Acesse o projeto diretamente pelo navegador no link:
 
 
 # Origem dos dados
-Os dados foram de autoria propria, usando como exemplo várias imagens minhas fazendo expressões facias.
+Os dados foram de autoria própria, usando como exemplo várias imagens minhas fazendo expressões facias.
 
 # Link do modelo exportado 
 `https://teachablemachine.withgoogle.com/models/z2S84huuy/`
 
 # Reflexão
-No início cometeu alguns erros em relação a uma leve confusão de má identificação, pois as expressões facias mexem com musculos.....
+Durante os testes, o modelo apresentou alguns erros de identificação, principalmente entre expressões que possuem características faciais semelhantes. Isso pode ter acontecido porque as expressões faciais envolvem diferentes músculos e pequenas mudanças no rosto podem alterar a classificação. Além disso, a iluminação, o posicionamento do rosto e a quantidade de exemplos utilizados no treinamento podem influenciar o resultado. O modelo apresentou também apresentou dificuldades de identificação quando testado em um local onde o fundo tinha muitas informações (fundo poluído). Com mais dados e exemplos variados, o modelo poderia apresentar uma classificação mais precisa.
