@@ -1,8 +1,8 @@
-# Classificador de Expressões Faciais (Desafio 01 - Teachable Machine)
+# Classificador de Expressões Faciais (Teachable Machine - Modelo de Inteligência Artificial)
 
 ## Aluna: Geovanna Lopes da Silva
 
-Este projeto é um exercício prático da disciplina de *Tópicos Especiaas e Projeto Integrador*, foi baseado na atividade proposta pelo professor Augusto Melo.
+Este projeto é um exercício prático da disciplina de *Tópicos Especiais e Projeto Integrador*, foi baseado na atividade proposta pelo professor Augusto Melo.
 O objetivo é classificar expressões faciais utilizando um modelo treinado no Teachable Machine.
 
 O modelo foi treinado para reconhecer as seguintes expressões:
