@@ -60,7 +60,7 @@ README.md: documentação do projeto.
 
 **2.Na Web**
 Acesse o projeto diretamente pelo navegador no link:
-
+`https://github.com/Geovanna-Lopes/Teste-Teachable-Machine.git`
 
 # Origem dos dados
 Os dados foram de autoria própria, usando como exemplo várias imagens minhas fazendo expressões facias.
